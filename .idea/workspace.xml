@@ -5,13 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76399d5c-ac19-45f6-b3de-4c106e9c356c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ai-python/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend-java/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend-react/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/iot-firmware/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documents/Arquitetura de Branches - EcoSort.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documents/Arquitetura de Branches - EcoSort.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documents/Projeto EcoSort-Commit Patterns.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/documents/Projeto EcoSort-Commit Patterns.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ai-python/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ai-python/proto/analize.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ai-python/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ai-python/src/host_grpc.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend-java/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-config/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-config/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend-react/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend-java/src/main/java/br/com/unicuritba/ecosort/ecosort/EcoSortApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend-java/src/main/java/br/com/unicuritba/ecosort/EcoSortApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,9 +27,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="33W5MjoyB7yll1Cc0PYnFj0uB96" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -39,7 +42,7 @@
     "git-widget-placeholder": "dev",
     "jdk.selected.JAVA_MODULE": "21",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/projetos_dev/Projetos Java/EcoSort/iot-firmware",
+    "last_opened_file_path": "C:/projetos_dev/Projetos Java/EcoSort",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -59,6 +62,9 @@
       <recent name="C:\projetos_dev\Projetos Java\EcoSort\backend-java" />
       <recent name="C:\projetos_dev\Projetos Java\EcoSort\frontend-react" />
       <recent name="C:\projetos_dev\Projetos Java\EcoSort" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\projetos_dev\Projetos Java\EcoSort\backend-java\src\main\java\br\com\unicuritba\ecosort" />
     </key>
   </component>
   <component name="RunManager">
@@ -82,6 +88,7 @@
       <option name="presentableId" value="Default" />
       <updated>1759419941908</updated>
       <workItem from="1759419942961" duration="1622000" />
+      <workItem from="1759526143422" duration="8696000" />
     </task>
     <servers />
   </component>
