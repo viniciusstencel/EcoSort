@@ -1,0 +1,82 @@
+services:
+
+  java-backend:
+    build:
+      context: ../backend-java
+      dockerfile: Dockerfile
+    container_name: java-api
+    ports:
+      - "8080:8080"
+    environment:
+      # Variáveis de conexão com o Banco de Dados
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/ecosortdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # Endereço do Servidor IA e MQTT
+      IA_SERVICE_URL: http://ia-python:50051/analisar
+      MQTT_BROKER_HOST: mqtt-broker
+      MQTT_BROKER_PORT: 1883
+    depends_on:
+      - postgres-db
+      - ai-python
+      - mqtt-broker
+    networks:
+      - public_network
+      - private_network
+
+  ai-python:
+    build:
+      context: ../ai-python
+      dockerfile: Dockerfile
+    container_name: ai-python
+    ports:
+      - "50051:50051"
+    networks:
+      - private_network
+
+  postgres-db:
+    image: postgres:14-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ecosortdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - private_network
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0.15
+    container_name: ecosort-mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+    networks:
+      - private_network
+
+  #react-web:
+  #  build:
+  #    context: ../frontend-react
+  #    dockerfile: Dockerfile
+  #  container_name: frontend-web
+  #  ports:
+  #    - "3000:80"
+  #  networks:
+  #    - public_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  public_network:
+    driver: bridge
+  private_network:
+    driver: bridge
