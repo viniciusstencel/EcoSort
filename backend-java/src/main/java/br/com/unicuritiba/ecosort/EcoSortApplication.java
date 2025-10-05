@@ -1,4 +1,4 @@
-package br.com.unicuritba.ecosort.ecosort;
+package br.com.unicuritiba.ecosort;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
