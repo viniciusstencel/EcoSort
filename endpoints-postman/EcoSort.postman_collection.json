@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "4fc6a087-e2fb-47a6-a0e8-7d85fa205f0a",
+		"name": "EcoSort",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43766876",
+		"_collection_link": "https://felipemariano-5136873.postman.co/workspace/Felipe-Mariano's-Workspace~533e7d92-5dbf-45de-8402-37704dd7e01a/collection/43766876-4fc6a087-e2fb-47a6-a0e8-7d85fa205f0a?action=share&source=collection_link&creator=43766876"
+	},
+	"item": [
+		{
+			"name": "Consulta AI",
+			"item": [
+				{
+					"name": "AnáliseDeAI",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Users/Felipe Mariano/OneDrive/Documentos/Downloads/coca_teste.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "localhost:8080/analisar",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"analisar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

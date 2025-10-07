@@ -1,0 +1,22 @@
+# Bytecode e Arquivos Compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+
+# Gerados ao construir pacotes Python.
+build/
+dist/
+*.egg-info/
+.eggs/
+eggs/
+
+# Evita conflitos de configuração pessoal entre desenvolvedores.
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Evitar o envio do dataset de imagens
+data/
