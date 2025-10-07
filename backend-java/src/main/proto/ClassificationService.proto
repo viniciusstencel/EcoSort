@@ -1,17 +1,21 @@
 syntax = "proto3";
 
-package ecosort.classification;
+package ecosort;
 
-message ImageChunk {
+option java_multiple_files = true;
+option java_package = "br.com.unicuritiba.ecosort";
+option java_outer_classname = "AiClassificationProto";
+
+message AiClassificationRequest {
   bytes data = 1;
 }
 
-message ClassificationResult {
+message AiClassificationResponse {
   int32 class_id = 1;
   string class_name = 2;
   float confidence = 3;
 }
 
-service ClassificationService {
-  rpc ClassifyStream(stream ImageChunk) returns (ClassificationResult);
+service AiClassificationService {
+  rpc AiClassification (AiClassificationRequest) returns (AiClassificationResponse);
 }

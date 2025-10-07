@@ -10,14 +10,13 @@ import grpc
 from concurrent import futures
 import logging
 import src.ecosort_ai.generated.classification_pb2_grpc as classification_pb2_grpc
-from src.ecosort_ai.services.classification_service import ClassificationService
-
+from src.ecosort_ai.services.classification_service import AiClassificationService
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
-    classification_pb2_grpc.add_ClassificationServiceServicer_to_server(
-        ClassificationService(), server
+    classification_pb2_grpc.add_AiClassificationServiceServicer_to_server(
+        AiClassificationService(), server
     )
 
     port = '50051'
