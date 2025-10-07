@@ -24,17 +24,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63lassification.proto\x12\x16\x65\x63osort.classification\"\x1a\n\nImageChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"P\n\x14\x43lassificationResult\x12\x10\n\x08\x63lass_id\x18\x01 \x01(\x05\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x12\n\nconfidence\x18\x03 \x01(\x02\x32}\n\x15\x43lassificationService\x12\x64\n\x0e\x43lassifyStream\x12\".ecosort.classification.ImageChunk\x1a,.ecosort.classification.ClassificationResult(\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63lassification.proto\x12\x07\x65\x63osort\"\'\n\x17\x41iClassificationRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"T\n\x18\x41iClassificationResponse\x12\x10\n\x08\x63lass_id\x18\x01 \x01(\x05\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x12\n\nconfidence\x18\x03 \x01(\x02\x32r\n\x17\x41iClassificationService\x12W\n\x10\x41iClassification\x12 .ecosort.AiClassificationRequest\x1a!.ecosort.AiClassificationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'classification_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_IMAGECHUNK']._serialized_start=48
-  _globals['_IMAGECHUNK']._serialized_end=74
-  _globals['_CLASSIFICATIONRESULT']._serialized_start=76
-  _globals['_CLASSIFICATIONRESULT']._serialized_end=156
-  _globals['_CLASSIFICATIONSERVICE']._serialized_start=158
-  _globals['_CLASSIFICATIONSERVICE']._serialized_end=283
+  _globals['_AICLASSIFICATIONREQUEST']._serialized_start=33
+  _globals['_AICLASSIFICATIONREQUEST']._serialized_end=72
+  _globals['_AICLASSIFICATIONRESPONSE']._serialized_start=74
+  _globals['_AICLASSIFICATIONRESPONSE']._serialized_end=158
+  _globals['_AICLASSIFICATIONSERVICE']._serialized_start=160
+  _globals['_AICLASSIFICATIONSERVICE']._serialized_end=274
 # @@protoc_insertion_point(module_scope)
