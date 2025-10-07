@@ -1,15 +1,12 @@
 # --- Bibliotecas de Comunicação gRPC ---
-grpcio==1.60.0
-grpcio-tools==1.60.0
+grpcio
+grpcio-tools
 
 # --- Bibliotecas de Visão Computacional (IA) ---
-tensorflow==2.15.0
+tensorflow
 
 # OpenCV (Para pré-processamento de imagem, como redimensionamento e conversão de cores)
-opencv-python==4.9.0.80
-
-# Pillow (Biblioteca de processamento de imagem, útil para ler e manipular imagens)
-Pillow==10.2.0
+opencv-python
 
 # NumPy (Dependência crucial para TensorFlow e OpenCV)
-numpy==1.26.4
+numpy

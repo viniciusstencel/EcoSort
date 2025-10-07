@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class ClassificationServiceStub(object):
+class AiClassificationServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,43 +34,43 @@ class ClassificationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ClassifyStream = channel.stream_unary(
-                '/ecosort.classification.ClassificationService/ClassifyStream',
-                request_serializer=classification__pb2.ImageChunk.SerializeToString,
-                response_deserializer=classification__pb2.ClassificationResult.FromString,
+        self.AiClassification = channel.unary_unary(
+                '/ecosort.AiClassificationService/AiClassification',
+                request_serializer=classification__pb2.AiClassificationRequest.SerializeToString,
+                response_deserializer=classification__pb2.AiClassificationResponse.FromString,
                 _registered_method=True)
 
 
-class ClassificationServiceServicer(object):
+class AiClassificationServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ClassifyStream(self, request_iterator, context):
+    def AiClassification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ClassificationServiceServicer_to_server(servicer, server):
+def add_AiClassificationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ClassifyStream': grpc.stream_unary_rpc_method_handler(
-                    servicer.ClassifyStream,
-                    request_deserializer=classification__pb2.ImageChunk.FromString,
-                    response_serializer=classification__pb2.ClassificationResult.SerializeToString,
+            'AiClassification': grpc.unary_unary_rpc_method_handler(
+                    servicer.AiClassification,
+                    request_deserializer=classification__pb2.AiClassificationRequest.FromString,
+                    response_serializer=classification__pb2.AiClassificationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'ecosort.classification.ClassificationService', rpc_method_handlers)
+            'ecosort.AiClassificationService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('ecosort.classification.ClassificationService', rpc_method_handlers)
+    server.add_registered_method_handlers('ecosort.AiClassificationService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class ClassificationService(object):
+class AiClassificationService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ClassifyStream(request_iterator,
+    def AiClassification(request,
             target,
             options=(),
             channel_credentials=None,
@@ -80,12 +80,12 @@ class ClassificationService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(
-            request_iterator,
+        return grpc.experimental.unary_unary(
+            request,
             target,
-            '/ecosort.classification.ClassificationService/ClassifyStream',
-            classification__pb2.ImageChunk.SerializeToString,
-            classification__pb2.ClassificationResult.FromString,
+            '/ecosort.AiClassificationService/AiClassification',
+            classification__pb2.AiClassificationRequest.SerializeToString,
+            classification__pb2.AiClassificationResponse.FromString,
             options,
             channel_credentials,
             insecure,
