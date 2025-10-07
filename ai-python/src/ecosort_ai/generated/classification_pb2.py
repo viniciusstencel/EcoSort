@@ -21,9 +21,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 
 _sym_db = _symbol_database.Default()
 
-
-
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x63lassification.proto\x12\x07\x65\x63osort\"\'\n\x17\x41iClassificationRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"T\n\x18\x41iClassificationResponse\x12\x10\n\x08\x63lass_id\x18\x01 \x01(\x05\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x12\n\nconfidence\x18\x03 \x01(\x02\x32r\n\x17\x41iClassificationService\x12W\n\x10\x41iClassification\x12 .ecosort.AiClassificationRequest\x1a!.ecosort.AiClassificationResponseb\x06proto3')
 
 _globals = globals()
