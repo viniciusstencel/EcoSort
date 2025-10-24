@@ -1,0 +1,4 @@
+0 Metal
+1 Não reciclável
+2 Plastico
+3 Papel
