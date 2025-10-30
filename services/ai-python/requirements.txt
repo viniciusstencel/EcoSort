@@ -1,12 +1,22 @@
-# --- Bibliotecas de Comunicação gRPC ---
-grpcio
-grpcio-tools
+# ------------------------------------------------------------------
+# Dependencias do Projeto ai-python
+# 
+# Para instalar, execute na raiz do projeto:
+# pip install -r requirements.txt
+# ------------------------------------------------------------------
 
-# --- Bibliotecas de Visão Computacional (IA) ---
+# Framework principal de IA para carregar e rodar o modelo Keras
+# NOTA: Se voce NAO tem uma GPU NVIDIA, use 'tensorflow-cpu'
 tensorflow
 
-# OpenCV (Para pré-processamento de imagem, como redimensionamento e conversão de cores)
+# Biblioteca para processamento de video e imagem
 opencv-python
 
-# NumPy (Dependência crucial para TensorFlow e OpenCV)
+# Biblioteca para comunicacao MQTT
+paho-mqtt
+
+# Biblioteca para fazer requisicoes HTTP (POST para o Java API)
+requests
+
+# Biblioteca de computacao numerica (usada pelo TensorFlow e OpenCV)
 numpy
