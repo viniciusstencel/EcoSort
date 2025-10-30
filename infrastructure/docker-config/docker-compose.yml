@@ -2,9 +2,9 @@ services:
 
   java-backend:
     build:
-      context: ../backend-java
+      context: ../../services/persistence-java
       dockerfile: Dockerfile
-    container_name: java-api
+    container_name: persistence-java
     ports:
       - "8080:8080"
     environment:
@@ -13,27 +13,17 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
 
-      # Endereço do Servidor IA e MQTT
-      IA_SERVICE_URL: http://ia-python:50051/analisar
-      MQTT_BROKER_HOST: mqtt-broker
-      MQTT_BROKER_PORT: 1883
     depends_on:
       - postgres-db
-      - ai-python
-      - mqtt-broker
     networks:
       - public_network
       - private_network
 
   ai-python:
     build:
-      context: ../ai-python
+      context: ../../services/ai-python
       dockerfile: Dockerfile
     container_name: ai-python
-    ports:
-      - "50051:50051"
-    networks:
-      - private_network
 
   postgres-db:
     image: postgres:14-alpine
