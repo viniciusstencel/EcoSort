@@ -1,11 +1,11 @@
 ```mermaid
 graph TD
     %% Define os Nós (Componentes) dentro de Subgrafos
-    subgraph Cam [Fonte de Vídeo (Câmera IP)]
+    subgraph Cam [Fonte de Vídeo - Câmera IP]
         Video[Stream de Vídeo HTTP]
     end
 
-    subgraph IA [Servidor IA (services/ai-python)]
+    subgraph IA [Servidor IA - services/ai-python]
         direction TB
         PyService(1. Consome Stream de Vídeo)
         PyModel(2. Classifica Resíduo)
@@ -17,14 +17,14 @@ graph TD
         PyModel --> PyKafka
     end
 
-    subgraph Hardware [Módulo IoT (Arduino/ESP32)]
+    subgraph Hardware [Módulo IoT - Arduino/ESP32]
         direction TB
         MQTTSub(1. Ouve Tópico MQTT)
         Servos(2. Aciona Servos Inferior/Superior)
         MQTTSub --> Servos
     end
 
-    subgraph Java [Serviço de Persistência (services/persistence-java)]
+    subgraph Java [Serviço de Persistência - services/persistence-java]
         direction TB
         KafkaSub(1. Ouve Tópico Kafka)
         JavaDB(2. Salva no Banco de Dados)
@@ -35,7 +35,7 @@ graph TD
         JavaDB --> JavaWS
     end
 
-    subgraph Frontend [Frontend Web (services/frontend-web)]
+    subgraph Frontend [Frontend Web - services/frontend-web]
         direction TB
         WSSub(Ouve WebSocket - Tempo Real)
         APICall(Busca API REST - Histórico)
@@ -45,7 +45,7 @@ graph TD
         APICall --> Dashboard
     end
 
-    subgraph Infra [Infraestrutura (docker-compose)]
+    subgraph Infra [Infraestrutura - docker-compose]
         MQTT[Broker MQTT (Mosquitto)]
         Kafka[Broker Kafka (c/ ZK)]
         DB[Banco de Dados (PostgreSQL)]
