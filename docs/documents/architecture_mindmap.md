@@ -46,9 +46,9 @@ graph TD
     end
 
     subgraph Infra [Infraestrutura - docker-compose]
-        MQTT[Broker MQTT (Mosquitto)]
-        Kafka[Broker Kafka (c/ ZK)]
-        DB[Banco de Dados (PostgreSQL)]
+        MQTT[Broker MQTT - Mosquitto]
+        Kafka[Broker Kafka c/ ZK]
+        DB[Banco de Dados - PostgreSQL]
     end
 
     %% == Conexões de Fluxo de Dados ==
