@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     %% Define os Nós (Componentes) dentro de Subgrafos
     subgraph Cam [📷 Fonte de Vídeo (Câmera IP)]
