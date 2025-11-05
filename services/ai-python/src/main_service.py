@@ -26,7 +26,8 @@ MQTT_PORT = 1883
 MQTT_TOPIC_PUBLISH = "detections/results" 
 
 # 4. Servidor Java (Endpoint)
-JAVA_API_ENDPOINT = "http://192.168.0.XX:8080/api/v1/detections"
+# !!! Lembre-se de trocar '192.168.0.XX' pelo IP real do seu PC Java
+JAVA_API_ENDPOINT = "http://192.168.0.XX:8080/api/residues/classify"
 
 # 5. Depuração
 SHOW_VIDEO_DEBUG = True # True para ver a janela de vídeo, False para rodar "headless"
@@ -38,15 +39,13 @@ def main():
     
     # 1. Inicializa os módulos
     try:
-        # --- LINHA CORRIGIDA ---
         detector = KerasObjectDetector(
             MODEL_PATH, 
-            LABELS_PATH,  # <-- Este argumento estava faltando
+            LABELS_PATH, 
             INPUT_WIDTH, 
             INPUT_HEIGHT, 
             CONF_THRESHOLD
         )
-        # ---------------------
         
         stream = StreamHandler(VIDEO_SOURCE_URL)
         comms = CommsHandler(MQTT_BROKER_HOST, MQTT_PORT, MQTT_TOPIC_PUBLISH, JAVA_API_ENDPOINT)
@@ -78,6 +77,7 @@ def main():
             # Envia os resultados (se houver)
             if detections:
                 print(f"Detectados {len(detections)} objetos.")
+                # A chamada permanece a mesma
                 comms.publish_results(detections, VIDEO_SOURCE_URL)
 
             # Mostra o vídeo (se depuração estiver ativa)
