@@ -15,15 +15,13 @@ import java.util.UUID;
 public class Residue {
 
     @Id
-    UUID id;
+    private UUID id;
 
-    String classification;
+    private String classification;
 
-    int numberOfClassification;
+    private float reliability;
 
-    float reliability;
-
-    LocalDateTime date;
+    private LocalDateTime date;
 
 
 }
