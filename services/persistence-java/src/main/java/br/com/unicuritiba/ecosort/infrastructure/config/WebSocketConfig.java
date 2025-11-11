@@ -12,25 +12,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
+        // /topic é para broadcast (novas classificações para todos)
+        // /queue é para mensagens privadas (o histórico para um usuário)
+        registry.enableSimpleBroker("/topic", "/queue");
+
         registry.setApplicationDestinationPrefixes("/app");
+
+        // Define o prefixo para destinos de usuário (essencial para @SendToUser)
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-
-        // COLE O SEU ID DA EXTENSÃO AQUI
-        // Ex: "chrome-extension://lhbjghocjpcoecemiikamjijoonopgll"
-        String idDaSuaExtensao = "chrome-extension://COLE_SEU_ID_AQUI";
-
-
+        // Seu endpoint de conexão
         registry.addEndpoint("/ws-connect")
-
-                // Em vez de .allowedOriginPatterns("*"),
-                // nós autorizamos explicitamente a extensão:
-                .setAllowedOrigins("chrome-extension://lhbjghocjpcoecemiikamjijoonopgll")
-
-                // A extensão precisa disto:
+                //.setAllowedOrigins("chrome-extension://lhbjghocjpcoecemiikamjijoonopgll", "http://127.0.0.1:5500")
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 }
