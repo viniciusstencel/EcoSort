@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResidueNotificationService {
 
-    // Adicionar estas duas linhas:
     private static final Logger logger = LoggerFactory.getLogger(ResidueNotificationService.class);
 
     public static final String DESTINATION_TOPIC = "/topic/residues";
@@ -24,13 +23,13 @@ public class ResidueNotificationService {
 
     public void sendResidueUpdate(ResidueDTO residue) {
         try {
-            logger.info("Tentando enviar resíduo para o tópico: {}", DESTINATION_TOPIC); // <-- Adicionar
+            logger.info("Tentando enviar resíduo para o tópico: {}", DESTINATION_TOPIC);
             messagingTemplate.convertAndSend(DESTINATION_TOPIC, residue);
-            logger.info("Resíduo enviado com sucesso: {}", residue.classification()); // <-- Adicionar
+            logger.info("Resíduo enviado com sucesso: {}", residue.classification());
 
         } catch (Exception e) {
-            // Se algo der errado, veremos isso no log do Spring Boot
-            logger.error("!!! FALHA AO ENVIAR MENSAGEM WEBSOCKET !!!", e); // <-- Adicionar
+
+            logger.error("!!! FALHA AO ENVIAR MENSAGEM WEBSOCKET !!!", e);
         }
     }
 }
