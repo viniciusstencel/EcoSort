@@ -2,6 +2,7 @@ package br.com.unicuritiba.ecosort.interfaces.controllers;
 
 
 import br.com.unicuritiba.ecosort.application.services.ResidueNotificationService;
+import br.com.unicuritiba.ecosort.application.services.ResidueService;
 import br.com.unicuritiba.ecosort.domain.dto.ResidueDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/residues") // <-- Endpoint atualizado (antes era /api/test-residue)
+@RequestMapping("/api/residues")
 public class ResidueController {
 
     private final ResidueNotificationService notificationService;
 
+    private final ResidueService residueService;
+
     @Autowired
-    public ResidueController(ResidueNotificationService notificationService) {
+    public ResidueController(ResidueNotificationService notificationService,
+                             ResidueService residueService) {
         this.notificationService = notificationService;
+        this.residueService = residueService;
     }
 
     /**
@@ -30,17 +35,19 @@ public class ResidueController {
     @PostMapping("/classify") // <-- Endpoint atualizado (antes era /broadcast)
     public ResponseEntity<String> receiveResidueClassification(@RequestBody ResidueDTO residue) {
 
-        // Envia a atualização para o front-end
-        notificationService.sendResidueUpdate(residue);
+        try {
+            // Delega TODA a lógica para o ResidueService
+            residueService.saveAndNotify(residue);
 
-        // Retorna "OK" para o Python
-        return ResponseEntity.ok("Residue classification received: " + residue.classification());
+            // Retorna "OK" para o Python
+            return ResponseEntity.ok("Residue classification received and saved: " + residue.classification());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing residue: " + e.getMessage());
+        }
     }
 
-    /**
-     * (Opcional) Endpoint de teste simples, caso você ainda precise.
-     */
-    @PostMapping("/test-broadcast") // <-- Endpoint atualizado (antes era /broadcast-simples)
+    @PostMapping("/test-broadcast") // <-- Endpoint de residuo teste.
     public ResponseEntity<String> testBroadcastSimples() {
 
         ResidueDTO residue = new ResidueDTO(
@@ -49,7 +56,9 @@ public class ResidueController {
                 LocalDateTime.now()
         );
 
-        notificationService.sendResidueUpdate(residue);
+        //notificationService.sendResidueUpdate(residue);
+
+        residueService.saveAndNotify(residue);
 
         return ResponseEntity.ok("Simulated residue message sent.");
     }
