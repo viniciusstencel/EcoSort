@@ -20,3 +20,6 @@ eggs/
 
 # Evitar o envio do dataset de imagens
 data/
+
+
+venv/

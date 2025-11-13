@@ -20,3 +20,8 @@ requests
 
 # Biblioteca de computacao numerica (usada pelo TensorFlow e OpenCV)
 numpy
+
+
+# Testers adicionais (opcionais)
+opencv-python
+requests
