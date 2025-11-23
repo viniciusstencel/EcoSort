@@ -24,6 +24,8 @@ services:
       context: ../../services/ai-python
       dockerfile: Dockerfile
     container_name: ai-python
+    depends_on:
+      - java-backend
 
   postgres-db:
     image: postgres:14-alpine
