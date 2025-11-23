@@ -2,171 +2,207 @@ import cv2
 import time
 import requests
 import json
-from datetime import datetime # <-- NOVO: Adicionado para o DTO
+import sys
+from datetime import datetime
 
-# Importa as classes dos outros arquivos
-# (Assumindo que estão na mesma pasta ou no sys.path)
-# from .classification_model import KerasObjectDetector
-# from .stream_handler import StreamHandler
+# --- IMPORT DO SEU MODELO REAL (Descomente quando for usar a IA real) ---
+# from classification_model import KerasObjectDetector
 
 # --- CONFIGURAÇÕES GLOBAIS ---
 
-# ... (Configurações 1, 2 e 3 permanecem as mesmas) ...
-
-# 4. Servidor Java (Endpoint Principal - JSON)
-# !!! Lembre-se de trocar '192.168.0.XX' pelo IP real do seu PC Java
-# (Este é o PASSO 2 do nosso teste)
+# 1. Endpoints
 JAVA_API_ENDPOINT = "http://localhost:8080/api/residues/classify"
-
-# 5. Dispositivo IoT (ESP32/Arduíno - Real)
-# !!! Lembre-se de trocar '192.168.0.YY' pelo IP real do seu dispositivo IoT
-IOT_API_BASE_URL = "http://192.168.0.YY:8080/classify" # <-- IP do IoT real
-
-# 6. ### ATUALIZADO: ENDPOINT DE TESTE (JAVA SIMULANDO IOT) ###
-# !!! Lembre-se de trocar '192.168.0.XX' pelo IP real do seu PC Java
-# (Este é o PASSO 1 do nosso teste)
+IOT_API_BASE_URL = "http://192.168.0.YY:8080/classify"  # <-- Troque pelo IP do ESP32
 JAVA_IOT_SIMULATOR_ENDPOINT = "http://localhost:8080/api/residues/test-classify"
 
-# 7. Depuração
+# 2. Configurações da Câmera e Detecção
+CAMERA_INDEX = 0        # 0 geralmente é a webcam padrão
+CONFIDENCE_THRESHOLD = 0.70  # Só aceita se a IA tiver 70% de certeza
+DETECTION_COOLDOWN = 5  # Segundos para esperar entre uma detecção e outra (evita spam)
+
+# 3. Depuração
 SHOW_VIDEO_DEBUG = True
 
+
 # -------------------------------
-# (Funções send_to_java_api e send_to_iot_device permanecem as mesmas)
+# ### FUNÇÕES DE COMUNICAÇÃO (API) ###
 # -------------------------------
 
-def send_to_java_api(detections, source_url):
+def send_to_java_api(classification, confidence):
     """
-    Função para enviar dados (JSON completo) ao servidor Java. (Sem alterações)
-    Usada pelo loop 'main' principal.
+    Envia o JSON (DTO) para o Backend Java (Spring Boot).
     """
     try:
         payload = {
-            "detections": detections,
-            "source": source_url
+            "classification": classification,
+            "confidence": float(confidence),
+            "timestamp": datetime.now().isoformat()
         }
+        
+        print(f" [JAVA] Enviando: {json.dumps(payload)}")
         response = requests.post(JAVA_API_ENDPOINT, json=payload, timeout=3)
-        print(f"Java API Status: {response.status_code}")
+        
+        if response.status_code == 200 or response.status_code == 201:
+             print(f" [JAVA] Sucesso: {response.status_code}")
+        else:
+             print(f" [JAVA] Erro API: {response.status_code} - {response.text}")
         
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao enviar para o servidor Java: {e}")
+        print(f" [JAVA] Falha de conexão: {e}")
 
 def send_to_iot_device(classification):
     """
-    Função para enviar o comando ao dispositivo IoT REAL. (Sem alterações)
-    Usada pelo loop 'main' principal.
+    Envia comando simples para o ESP32 mover os servos.
     """
     try:
+        # O ESP32 espera ?cmd=plastico
         params = {'cmd': classification} 
+        print(f" [IOT] Enviando comando '{classification}' para {IOT_API_BASE_URL}...")
+        
         response = requests.post(IOT_API_BASE_URL, params=params, timeout=2)
-        print(f"IoT Device REAL Status: {response.status_code} (Comando: {classification})")
+        
+        if response.status_code == 200:
+            print(f" [IOT] Sucesso: O dispositivo recebeu o comando.")
+        else:
+            print(f" [IOT] Erro Device: {response.status_code}")
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao enviar para o dispositivo IoT REAL: {e}")
+        print(f" [IOT] Falha de conexão (Verifique se o ESP32 está ligado): {e}")
 
 # -------------------------------
-# ### FUNÇÃO DE TESTE ATUALIZADA ###
+# ### FUNÇÃO DE TESTE (MOCK) ###
 # -------------------------------
 def test_iot_to_java_flow(classification_mock):
-    """
-    Função de teste ATUALIZADA (Fluxo de 2 Passos):
-    Passo 1: Envia para o simulador IoT (Java em /test-classify/{...})
-    Passo 2: Envia para o fluxo normal (Java em /classify com JSON)
-    """
-    print(f"\n--- INICIANDO TESTE DE FLUXO (Python -> IoT Sim -> Python -> Java DB) ---")
-    print(f"Classificação Mockada: '{classification_mock}'")
+    print(f"\n--- [TESTE] Iniciando fluxo simulado para: '{classification_mock}' ---")
     
-    # --- PASSO 1: Enviar para o Simulador IoT (Java) ---
-    print("\nPASSO 1: Enviando comando para o 'IoT Simulado' (Java)...")
+    # 1. Simula envio para o Java (Simulador IoT)
     try:
-        url_step_1 = f"{JAVA_IOT_SIMULATOR_ENDPOINT}/{classification_mock}"
-        print(f"URL (Passo 1): {url_step_1}")
-        
-        response_1 = requests.post(url_step_1, timeout=3)
-        
-        if response_1.status_code == 200:
-            print(f"Sucesso (Passo 1): 'IoT Simulado' recebeu o comando.")
-            print(f"Resposta (Passo 1): '{response_1.text}'")
-        else:
-            print(f"--- FALHA (Passo 1) ---")
-            print(f"Status: {response_1.status_code}, Resposta: {response_1.text}")
-            print("Abortando teste.")
-            return # Aborta o teste se o passo 1 falhar
+        url = f"{JAVA_IOT_SIMULATOR_ENDPOINT}/{classification_mock}"
+        requests.post(url, timeout=2)
+        print(" [TESTE] Passo 1 (Simulador) OK")
+    except Exception as e:
+        print(f" [TESTE] Passo 1 Falhou: {e}")
 
-    except requests.exceptions.RequestException as e:
-        print(f"--- ERRO DE CONEXÃO (Passo 1) ---")
-        print(f"Não foi possível conectar ao simulador IoT em {JAVA_IOT_SIMULATOR_ENDPOINT}")
-        print(f"Erro: {e}")
-        return # Aborta
+    time.sleep(1)
 
-    # Pausa rápida para simular o tempo de processamento
-    time.sleep(1) 
+    # 2. Simula envio normal (DB)
+    send_to_java_api(classification_mock, 0.99)
+    print("--- [TESTE] Fim do ciclo ---")
 
-    # --- PASSO 2: Enviar para o Fluxo Normal (Java) ---
-    print("\nPASSO 2: Enviando DTO (JSON) para o 'Fluxo Normal' (Java DB)...")
-    try:
-        # Monta o payload (JSON) que o /api/residues/classify espera
-        # (Exatamente como o ResidueDTO no Java)
-        payload_step_2 = {
-            "classification": classification_mock,
-            "confidence": 0.99, # Valor mockado
-            "timestamp": datetime.now().isoformat() # Timestamp atual em formato ISO
-        }
-        
-        print(f"URL (Passo 2): {JAVA_API_ENDPOINT}")
-        print(f"Payload (Passo 2): {json.dumps(payload_step_2, indent=2)}")
-        
-        # Envia a requisição POST com o corpo JSON
-        response_2 = requests.post(JAVA_API_ENDPOINT, json=payload_step_2, timeout=3)
 
-        if response_2.status_code == 200:
-            print("--- SUCESSO NO TESTE (COMPLETO) ---")
-            print(f"Status (Passo 2): {response_2.status_code}")
-            print(f"Resposta do Servidor (Passo 2): '{response_2.text}'")
-            print("Fluxo completo testado! Verifique o BD e o Frontend.")
-        else:
-            print("--- FALHA (Passo 2) ---")
-            print(f"Status: {response_2.status_code}, Resposta: {response_2.text}")
-
-    except requests.exceptions.RequestException as e:
-        print(f"--- ERRO DE CONEXÃO (Passo 2) ---")
-        print(f"Não foi possível conectar ao servidor Java em {JAVA_API_ENDPOINT}")
-        print(f"Erro: {e}")
 # -------------------------------
-# ### FIM DA FUNÇÃO DE TESTE ###
+# ### FUNÇÃO PRINCIPAL (CAMERA LOOP) ###
 # -------------------------------
-
-
 def main():
-    """
-    Função principal de processamento da câmera. (Sem alterações)
-    """
-    print("Iniciando o serviço de processamento...")
+    print(f"--- INICIANDO SERVIÇO DE VISÃO (Câmera {CAMERA_INDEX}) ---")
     
-    # ... (Código da função 'main' original) ...
-    pass # Remova o 'pass' e cole seu código 'main' original aqui
+    # 1. Inicializa a Câmera
+    cap = cv2.VideoCapture(CAMERA_INDEX)
+    
+    if not cap.isOpened():
+        print("ERRO: Não foi possível abrir a câmera.")
+        return
 
+    # 2. Inicializa o Modelo (SE TIVER O ARQUIVO REAL)
+    # detector = KerasObjectDetector("model.h5", "labels.txt") # <--- DESCOMENTE AQUI
+    print("Modelo de IA carregado (Simulação ou Real).")
+
+    last_detection_time = 0
+    
+    try:
+        while True:
+            # Leitura do frame
+            ret, frame = cap.read()
+            if not ret:
+                print("Falha ao capturar imagem da câmera.")
+                break
+
+            # ---------------------------------------------------------
+            # ÁREA DE DETECÇÃO (IA)
+            # ---------------------------------------------------------
+            
+            detected_label = None
+            confidence = 0.0
+
+            # --- OPÇÃO A: SEU CÓDIGO REAL (Descomente abaixo) ---
+            # prediction = detector.predict(frame)
+            # if prediction['confidence'] > CONFIDENCE_THRESHOLD:
+            #     detected_label = prediction['label']
+            #     confidence = prediction['confidence']
+
+            # --- OPÇÃO B: MODO MANUAL PARA DEBUG (Use tecla 'p' para simular plastico) ---
+            # Isso permite testar sem a IA real rodando
+            # Pressione 'p' no teclado enquanto a janela do vídeo está aberta
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('p'):
+                detected_label = "plastico"
+                confidence = 0.95
+                print(" [DEBUG] Simulação manual acionada: PLASTICO")
+            elif key == ord('m'):
+                detected_label = "metal"
+                confidence = 0.88
+                print(" [DEBUG] Simulação manual acionada: METAL")
+
+            # ---------------------------------------------------------
+            # LÓGICA DE ENVIO (COM COOLDOWN)
+            # ---------------------------------------------------------
+            current_time = time.time()
+            
+            if detected_label and (current_time - last_detection_time > DETECTION_COOLDOWN):
+                print(f"\n!!! DETECÇÃO CONFIRMADA: {detected_label.upper()} ({confidence*100:.1f}%) !!!")
+                
+                # Desenha no vídeo
+                cv2.putText(frame, f"DETECTADO: {detected_label}", (10, 50), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                
+                # 1. Envia para o Backend Java (Salvar no BD)
+                send_to_java_api(detected_label, confidence)
+                
+                # 2. Envia para o ESP32 (Mover Servo)
+                send_to_iot_device(detected_label)
+                
+                # Atualiza o tempo da última detecção para ativar o cooldown
+                last_detection_time = current_time
+            
+            # Mostra o vídeo se configurado
+            if SHOW_VIDEO_DEBUG:
+                # Status na tela
+                if (current_time - last_detection_time < DETECTION_COOLDOWN):
+                    msg_wait = f"Aguardando... ({int(DETECTION_COOLDOWN - (current_time - last_detection_time))}s)"
+                    cv2.putText(frame, msg_wait, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                
+                cv2.imshow('EcoSort Vision', frame)
+
+            # Sai se pressionar 'q'
+            if key == ord('q'):
+                break
+                
+    except KeyboardInterrupt:
+        print("\nInterrompido pelo usuário.")
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
+        print("Serviço encerrado.")
 
 # -------------------------------
-# ### COMO EXECUTAR O TESTE ###
+# ### EXECUÇÃO ###
 # -------------------------------
 if __name__ == "__main__":
     
-    # Para rodar o TESTE MOCKADO, mude a variável abaixo para True
-    # Para rodar o programa NORMAL (câmera), mude para False
+    # Mude para True se quiser apenas testar a conexão sem abrir câmera
+    MODO_TESTE_SEM_CAMERA = False 
     
-    MODO_TESTE = True 
-    
-    if MODO_TESTE:
-        # --- Configuração do Teste ---
-        
-        # 1. Defina aqui o valor que você quer simular
-        classificacao_para_testar = "papelao_mock_001" 
-        
-        # 2. Executa a função de teste
-        test_iot_to_java_flow(classificacao_para_testar)
-        
+    if MODO_TESTE_SEM_CAMERA:
+        print("!!! MODO TESTE (SEM CAMERA) !!!")
+        print("Enviando dados falsos em loop para testar rede...")
+        try:
+            while True:
+                test_iot_to_java_flow("teste_vidro")
+                print("Aguardando 5s...")
+                time.sleep(5)
+        except KeyboardInterrupt:
+            print("Fim do teste.")
     else:
-        # Roda o programa principal de processamento da câmera
-        # (Certifique-se de colar seu código 'main' acima)
-        print("MODO_TESTE=False. (Certifique-se de que a função 'main' está definida)")
-        # main() # Descomente isso quando colar sua função main
+        # MODO REAL
+        # Certifique-se de ter instalado: pip install opencv-python requests
+        main()
