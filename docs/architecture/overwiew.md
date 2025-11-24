@@ -1,3 +1,4 @@
+
 ♻️ Projeto EcoSort: Lixeira Inteligente com Visão Computacional e Automação
 
 Resumo executivo

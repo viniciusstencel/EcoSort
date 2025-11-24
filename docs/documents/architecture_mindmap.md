@@ -1,55 +1,73 @@
 ```mermaid
-mindmap
-  root((Projeto EcoSort: Lixeira Inteligente))
-    
-    (🎯 Objetivo Central: Automação da Separação de Resíduos)
-    
-    subgraph 🤖 Módulo IoT/Hardware (iot-firmware/)
-      Câmera (ESP32-CAM)
-        --Captura Imagem--> Envio HTTP (para API Java)
-      Atuação (Motores/Servos)
-        --Recebe Comando Assíncrono--> MQTT Subscribe
+graph TD
+    %% Define os Nós (Componentes) dentro de Subgrafos
+
+    subgraph Cam [Fonte de Vídeo - Câmera IP]
+        Video[Stream de Vídeo HTTP]
     end
-    
-    subgraph ⚙️ API Central (backend-java/)
-      Fluxo de Entrada
-        --> Recebe Imagem (POST /depositar)
-      Comunicação IA
-        --> Proxy para Servidor Python
-      Persistência
-        --> Armazena Log de Coleta no PostgreSQL
-      Mensageria (Saída)
-        --Comando Atuação Leve--> MQTT Publish
-        --Feedback em Tempo Real--> WebSocket (para React)
+
+    subgraph IA [Servidor IA - services/ai-python]
+        direction TB
+        PyService(1. Consome Stream de Vídeo)
+        PyModel(2. Classifica Resíduo)
+        PyMQTT(3a. Publica Comando MQTT)
+        PyKafka(3b. Publica Evento Kafka)
+        
+        PyService --> PyModel
+        PyModel --> PyMQTT
+        PyModel --> PyKafka
     end
-    
-    subgraph 🧠 Servidor IA (ia-python/)
-      Modelo
-        --> CNN (MobileNetV2, YOLO)
-      Entrada
-        --> Imagem Bruta (HTTP POST)
-      Processamento
-        --> Inferência / Classificação
-      Saída
-        --> Retorna JSON (class_id, confidence)
+
+    subgraph Hardware [Módulo IoT - Arduino/ESP32]
+        direction TB
+        MQTTSub(1. Ouve Tópico MQTT)
+        Servos(2. Aciona Servos Inferior/Superior)
+        MQTTSub --> Servos
     end
-    
-    subgraph 🖥️ Frontend Web (frontend-react/)
-      Experiência do Usuário
-        --> Gamificação (Placar, Pontos)
-      Feedback Ao Vivo
-        --> WebSocket Listener (Efeitos Bacanas 🎉)
-      Dashboard
-        --> Relatórios Gráficos (Via API Java)
+
+    subgraph Java [Serviço de Persistência - services/persistence-java]
+        direction TB
+        KafkaSub(1. Ouve Tópico Kafka)
+        JavaDB(2. Salva no Banco de Dados)
+        JavaWS(3. Transmite via WebSocket)
+        JavaAPI(4. Expõe API REST de Histórico)
+        
+        KafkaSub --> JavaDB
+        JavaDB --> JavaWS
     end
-    
-    subgraph 🐳 Orquestração & Infra (docker-config/)
-      Docker Compose
-        --> Orquestra 5 Serviços (Java, Python, React, DB, MQTT)
-      Banco de Dados
-        --> PostgreSQL (Dados de Coleta)
-      Comunicação Assíncrona
-        --> MQTT Broker (Mosquitto)
-      Rede
-        --> Volumes Persistentes / Rede Interna
+
+    subgraph Frontend [Frontend Web - services/frontend-web]
+        direction TB
+        WSSub(Ouve WebSocket - Tempo Real)
+        APICall(Busca API REST - Histórico)
+        Dashboard(Exibe Dashboard/Gráficos)
+        
+        WSSub --> Dashboard
+        APICall --> Dashboard
     end
+
+    subgraph Infra [Infraestrutura - docker-compose]
+        MQTT[Broker MQTT - Mosquitto]
+        Kafka[Broker Kafka c/ ZK]
+        DB[Banco de Dados - PostgreSQL]
+    end
+
+    %% == Conexões de Fluxo de Dados ==
+    
+    %% Fluxo de Vídeo
+    Video -- "Consumido por" --> PyService
+    
+    %% Fluxo de Comando (Baixa Latência)
+    PyMQTT -- "Comando (String 'plastic')" ---|BAIXA LATÊNCIA|---> MQTT
+    MQTT -- "Comando lido por" --> MQTTSub
+    
+    %% Fluxo de Dados (Resiliência)
+    PyKafka -- "Evento (JSON {...})" ---|RESILIÊNCIA|---> Kafka
+    Kafka -- "Evento consumido por" --> KafkaSub
+    
+    %% Fluxo do Frontend
+    JavaWS -- "Push em /topic/detections" --> WSSub
+    JavaAPI -- "GET /api/v1/history" --- APICall
+    
+    %% Fluxo do Banco de Dados
+    JavaDB -- "Salva em" --> DB

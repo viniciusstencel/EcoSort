@@ -1,8 +1,6 @@
 package br.com.unicuritiba.ecosort.domain.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -15,15 +13,14 @@ import java.util.UUID;
 public class Residue {
 
     @Id
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    String classification;
+    private String classification;
 
-    int numberOfClassification;
+    private float reliability;
 
-    float reliability;
-
-    LocalDateTime date;
+    private LocalDateTime date;
 
 
 }
