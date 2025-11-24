@@ -1,27 +1,102 @@
-# 🖥️ Aplicação Web Interativa (React.js)
+📘 EcoSort – Monitor de Reciclagem Inteligente
 
-O frontend é a interface de engajamento do usuário. Ele mostra relatórios e, mais importante, oferece **feedback visual e gamificação em tempo real** quando um resíduo é depositado.
+Interface web desenvolvida em Next.js + React, utilizando TailwindCSS v3 e Chart.js, voltada para visualização e análise de dados sobre resíduos reciclados.
 
-### ✨ Recursos Principais
+🚀 Tecnologias Utilizadas
 
-1.  **Conexão WebSocket:** Mantém uma conexão persistente com a API Java para receber notificações de classificação **ao vivo** e atualizar o placar e os efeitos visuais.
-2.  **Gamificação:** Exibe um placar 🏆 e aciona animações de celebração 🎉 (via bibliotecas como Lottie ou Rive) para incentivar a reciclagem correta.
-3.  **Dashboard de Métricas:** Apresenta relatórios gráficos sobre o volume de coleta por tipo e período, obtidos da API Java.
+Next.js 14+
 
-### 🌐 Comunicação
+React 18+
 
-* **API REST:** Consome dados de relatórios via a API Java.
-* **WebSockets:** Conecta-se ao endpoint `/ws/feed` da API Java para o fluxo de dados em tempo real.
+TailwindCSS 3
 
-### 📦 Como Construir e Rodar (Localmente)
+Chart.js + react-chartjs-2
 
-1.  Certifique-se de que o Node.js está instalado.
-2.  Instale as dependências:
-    ```bash
-    npm install
-    ```
-3.  Inicie o servidor de desenvolvimento:
-    ```bash
-    npm start
-    ```
-    *O app geralmente abre em `http://localhost:3000`.*
+chartjs-plugin-datalabels
+
+TypeScript
+
+📦 Instalação do Projeto
+1️⃣ Clone o repositório (ou abra sua pasta existente)
+git clone <url-do-seu-repo>
+cd meu-site
+
+📥 Instalar Dependências
+🔧 Dependências do Next.js / React
+npm install
+
+🎨 Instalar TailwindCSS (versão 3)
+
+Instalação recomendada:
+
+npm install -D tailwindcss@3 postcss autoprefixer
+
+
+Gerar arquivos de config:
+
+npx tailwindcss init -p
+
+Certifique-se de que tailwind.config.js contém:
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}"
+  ],
+  theme: { extend: {} },
+  plugins: [],
+};
+
+
+E que globals.css possui:
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+📊 Instalar bibliotecas de gráficos
+npm install chart.js react-chartjs-2 chartjs-plugin-datalabels
+
+▶️ Rodando o projeto
+npm run dev
+
+
+O projeto iniciará em:
+
+http://localhost:3000
+
+📁 Estrutura Simplificada
+meu-site/
+ ├─ app/
+ │   ├─ page.tsx           → Página principal
+ │   ├─ graph.tsx          → Componente do gráfico
+ │   └─ globals.css        → Estilos globais
+ ├─ public/                → Imagens, ícones, etc.
+ ├─ package.json
+ ├─ tailwind.config.js
+ └─ README.md
+
+📌 Funcionalidades
+
+Dashboard com métricas gerais
+
+Gráfico de distribuição de resíduos com:
+
+Cores personalizadas
+
+Labels externos
+
+Percentuais calculados via peso e quantidade
+
+Cards das categorias de resíduos
+
+Card de Atividade Recente com eventos automáticos
+
+Layout responsivo
+
+🛠️ Comandos úteis
+Ação	Comando
+Instalar dependências	npm install
+Iniciar servidor	npm run dev
+Build para produção	npm run build
+Rodar build otimizado	npm start
