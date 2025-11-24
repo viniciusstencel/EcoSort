@@ -1,17 +1,20 @@
-FROM node:20-alpine AS build-stage
+# -------- BUILD --------
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-
 RUN npm install
 
 COPY . .
-
 RUN npm run build
 
-FROM nginx:stable-alpine AS production-stage
+FROM node:20-alpine AS runner
 
-COPY --from=build-stage /app/build /usr/share/nginx/html
+WORKDIR /app
 
-EXPOSE 80
+COPY --from=builder /app ./
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]
