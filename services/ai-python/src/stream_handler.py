@@ -1,50 +1,86 @@
-# stream_handler.py
-
 import cv2
 import time
+import requests
+import numpy as np
 
 class StreamHandler:
-    """ Gerencia a conexão e captura do stream de vídeo. """
+    """ 
+    Gerencia a captura de snapshots de uma URL. 
+    Foca em capturar múltiplas imagens e selecionar a melhor (mais nítida).
+    """
     
-    def __init__(self, stream_url):
-        self.stream_url = stream_url
-        self.cap = None
-        print(f"Handler de Stream inicializado para: {self.stream_url}")
+    def __init__(self, snapshot_url):
+        self.snapshot_url = snapshot_url
+        print(f"Handler de Snapshot inicializado para: {self.snapshot_url}")
 
-    def connect(self):
-        """ Tenta estabelecer a conexão com o stream. """
-        print(f"Tentando conectar ao stream: {self.stream_url}")
-        self.cap = cv2.VideoCapture(self.stream_url)
-        
-        if not self.cap.isOpened():
-            print(f"Erro: Não foi possível conectar ao stream em {self.stream_url}")
-            return False
-        
-        print("Conexão com o stream estabelecida.")
-        return True
-
-    def get_frame(self):
+    def _fetch_single_frame(self):
         """ 
-        Captura um frame. Tenta reconectar se a leitura falhar.
-        Retorna: (True, frame) em sucesso, (False, None) em falha.
+        Faz uma requisição HTTP para baixar a imagem atual da URL. 
+        Retorna o frame no formato OpenCV (BGR) ou None em caso de erro.
         """
-        if self.cap is None or not self.cap.isOpened():
-            print("Stream não está conectado. Tentando reconectar...")
-            if not self.connect():
-                time.sleep(2) # Espera antes de tentar novamente
-                return (False, None)
+        try:
+            response = requests.get(self.snapshot_url, timeout=5)
+            if response.status_code == 200:
+                # Converte os bytes da resposta para um array numpy
+                img_array = np.array(bytearray(response.content), dtype=np.uint8)
+                # Decodifica o array para uma imagem OpenCV
+                frame = cv2.imdecode(img_array, -1)
+                return frame
+            else:
+                print(f"Erro ao obter imagem: Status Code {response.status_code}")
+                return None
+        except Exception as e:
+            print(f"Exceção ao conectar na URL: {e}")
+            return None
+
+    def _calculate_sharpness(self, frame):
+        """
+        Calcula a nitidez da imagem usando a variância do Laplaciano.
+        Quanto maior o valor, mais nítida (menos borrada) é a imagem.
+        """
+        if frame is None:
+            return 0
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        return cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    def get_best_frame_of_three(self):
+        """ 
+        Captura 3 imagens com um intervalo, compara a nitidez delas 
+        e retorna a melhor imagem (True, best_frame).
+        Retorna (False, None) se falhar em todas.
+        """
+        frames_collected = []
         
-        ret, frame = self.cap.read()
+        print("Iniciando captura de 3 quadros...")
         
-        if not ret:
-            print("Falha ao capturar o quadro. Conexão pode ter caído.")
-            self.release() # Fecha a conexão antiga
-            return (False, None) # Sinaliza falha para o loop principal
+        for i in range(3):
+            frame = self._fetch_single_frame()
             
-        return (True, frame)
+            if frame is not None:
+                score = self._calculate_sharpness(frame)
+                frames_collected.append((score, frame))
+                print(f"Captura {i+1}/3 - Score de nitidez: {score:.2f}")
+            else:
+                print(f"Captura {i+1}/3 falhou.")
+            
+            # Pequeno delay para totalizar aprox 1 segundo para as 3 fotos
+            # (ajuste conforme a latência da sua rede/câmera)
+            if i < 2: 
+                time.sleep(0.3) 
+
+        if not frames_collected:
+            print("Falha: Nenhuma imagem pôde ser capturada.")
+            return (False, None)
+
+        # Ordena pelo score (nitidez) em ordem decrescente e pega o primeiro
+        best_score, best_frame = max(frames_collected, key=lambda item: item[0])
+        
+        print(f"Melhor imagem selecionada com score: {best_score:.2f}")
+        return (True, best_frame)
 
     def release(self):
-        """ Libera os recursos da câmera. """
-        if self.cap is not None:
-            self.cap.release()
-            print("Stream liberado.")
+        """ 
+        Para requisições HTTP simples, não há conexão persistente para fechar,
+        mas mantemos o método para compatibilidade com a estrutura antiga.
+        """
+        pass
