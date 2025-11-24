@@ -6,8 +6,10 @@ import sys
 import random
 from datetime import datetime
 
+
 # --- IMPORT DA SUA CLASSE DE STREAM ---
 from stream_handler import StreamHandler
+from comms_handler import KerasObjectDetector
 
 # --- IMPORT DO MODELO (Descomente quando tiver o arquivo .h5) ---
 # from classification_model import KerasObjectDetector
@@ -18,10 +20,10 @@ from stream_handler import StreamHandler
 
 # 1. Endpoints
 JAVA_API_ENDPOINT = "http://host.docker.internal:8080/api/residues/classify" # 'host.docker.internal' acessa o localhost da máquina fora do docker
-IOT_API_BASE_URL = "http://192.168.0.YY:8080/classify"  # <-- Troque pelo IP do ESP32
+IOT_API_BASE_URL = "http://ecosort.local/classify"  # <-- Troque pelo IP do ESP32
 
 # 2. Configurações da Câmera
-SNAPSHOT_URL = "http://192.168.0.XX/capture" # <-- ATUALIZE COM O IP DA CAMERA
+SNAPSHOT_URL = "http://ecosort.local/capture" # <-- ATUALIZE COM O IP DA CAMERA
 
 # 3. Configurações de Comportamento
 CONFIDENCE_THRESHOLD = 0.70
@@ -29,7 +31,7 @@ DETECTION_COOLDOWN = 10  # Tempo entre um envio e outro
 
 # 4. Flags de Debug e Ambiente
 SHOW_VIDEO_DEBUG = False  # <--- MANTENHA FALSE SE RODAR NO DOCKER
-SIMULATE_DETECTION = True # <--- TRUE = Gera detecção falsa para teste de rede. FALSE = Usa a I.A.
+SIMULATE_DETECTION = False # <--- TRUE = Gera detecção falsa para teste de rede. FALSE = Usa a I.A.
 
 # ==============================================================================
 # FUNÇÕES DE API
@@ -79,8 +81,17 @@ def main():
     detector = None
     if not SIMULATE_DETECTION:
         print("Carregando modelo de IA...")
-        # detector = KerasObjectDetector("model.h5", "labels.txt") # <--- DESCOMENTE AQUI
-        pass
+        try:
+            # CORREÇÃO APLICADA AQUI:
+            # Passamos model_path, labels_path, width, height, threshold
+            detector = KerasObjectDetector("model.h5", "labels.txt", 224, 224, CONFIDENCE_THRESHOLD)
+            print("Modelo carregado com sucesso!")
+        except TypeError as e:
+            print(f"Erro de argumentos na classe do Modelo: {e}")
+            return # Para o código se não conseguir carregar
+        except Exception as e:
+            print(f"Erro genérico ao carregar modelo: {e}")
+            return
 
     last_detection_time = 0
     
