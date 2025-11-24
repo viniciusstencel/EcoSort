@@ -30,7 +30,7 @@ DETECTION_COOLDOWN = 10     # Tempo em segundos entre um envio e outro
 
 # 4. Flags de Debug e Ambiente
 SHOW_VIDEO_DEBUG = False    # MANTENHA FALSE NO DOCKER
-SIMULATE_DETECTION = False  # FALSE = Usa a I.A. Real
+SIMULATE_DETECTION = True  # FALSE = Usa a I.A. Real
 
 # ==============================================================================
 # FUNÇÕES DE API
@@ -56,7 +56,7 @@ def send_to_iot_device(classification):
     try:
         params = {'cmd': classification} 
         print(f" [IOT] Enviando comando '{classification}'...")
-        response = requests.post(IOT_API_BASE_URL, params=params, timeout=2)
+        response = requests.get(IOT_API_BASE_URL, params=params, timeout=2)
         if response.status_code == 200:
             print(f" [IOT] Sucesso: Comando recebido.")
         else:
@@ -119,7 +119,7 @@ def main():
             confidence = 0.0
 
             if SIMULATE_DETECTION:
-                mock_labels = ["plastico", "metal", "vidro", "papel"]
+                mock_labels = ["plastic", "metal", "vidro", "paper", "organic"]
                 detected_label = random.choice(mock_labels)
                 confidence = 0.95
                 print(f" [SIMULACAO] Gerado rótulo falso: {detected_label}")
