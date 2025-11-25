@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cores padrão do EcoSort */
+:root {
+  --color-primary: #16a34a; /* verde EcoSort */
+  --color-text: #111111;    /* preto para textos */
+  --color-bg: #ffffff;      /* fundo branco */
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+h1, h2, h3 {
+  color: var(--color-primary);
+}
