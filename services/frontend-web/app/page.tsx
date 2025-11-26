@@ -12,8 +12,17 @@ import ConstructionIcon from "@mui/icons-material/Construction";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import GrassIcon from "@mui/icons-material/Grass";
 import EnergySavingsLeafIcon from "@mui/icons-material/EnergySavingsLeaf";
-import PieChartIcon from '@mui/icons-material/PieChart';
-import HistoryIcon from '@mui/icons-material/History';
+import PieChartIcon from "@mui/icons-material/PieChart";
+import HistoryIcon from "@mui/icons-material/History";
+
+// 🔥 TRADUÇÃO: BACK-END (EN) → FRONT-END (PT)
+const traduzir = {
+  plastic: "Plástico",
+  paper: "Papel",
+  metal: "Metal",
+  glass: "Vidro",
+  organic: "Orgânico",
+};
 
 export default function Home() {
   const { historico, novos } = useEcoSortWS();
@@ -21,7 +30,7 @@ export default function Home() {
   // Combinação dos dados recebidos
   const eventos = [...novos, ...historico];
 
-  // Se nenhum dado real chegou ainda, use fallback
+  // Categorias base (PT)
   const categoriasBase = [
     { nome: "Plástico", cor: "#3b82f6", icone: <ScienceIcon className="text-blue-500" /> },
     { nome: "Papel", cor: "#facc15", icone: <DescriptionIcon className="text-yellow-500" /> },
@@ -30,10 +39,14 @@ export default function Home() {
     { nome: "Orgânico", cor: "#ef4444", icone: <GrassIcon className="text-red-500" /> },
   ];
 
-  // Contagem por categoria baseada no WebSocket
+  // Contagem por categoria (comparando textos em inglês vindos do backend)
   const contagem = categoriasBase.map((cat) => ({
     ...cat,
-    items: eventos.filter((e) => e.classification?.toLowerCase() === cat.nome.toLowerCase()).length,
+   items: eventos.filter(
+  (e) =>
+    traduzir[e.classification?.toLowerCase() as keyof typeof traduzir] ===
+    cat.nome
+).length,
   }));
 
   // Peso mockado / até receber dado real
@@ -49,7 +62,7 @@ export default function Home() {
       {/* Header */}
       <div className="flex items-center space-x-4">
         <div className="w-20 h-20 bg-green-200 flex items-center justify-center rounded-full overflow-hidden">
-          <Image 
+          <Image
             src="/ecosort.png"
             alt="Logo EcoSort"
             width={80}
@@ -67,15 +80,11 @@ export default function Home() {
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         
-        {/* Total Items */}
         <div className="bg-green-100 p-4 rounded-lg shadow flex flex-col">
           <h2 className="text-lg font-semibold text-black">Total de Items</h2>
-          <div className="flex items-baseline space-x-2 mt-2">
-            <span className="text-2xl font-bold text-black">{totalItems}</span>
-          </div>
+          <span className="text-2xl font-bold text-black">{totalItems}</span>
         </div>
 
-        {/* Peso mockado até receber o real */}
         <div className="bg-green-100 p-4 rounded-lg shadow flex flex-col">
           <h2 className="text-lg font-semibold text-black">Peso Total</h2>
           <span className="text-2xl font-bold text-black">{(totalItems * 0.08).toFixed(2)} kg</span>
@@ -126,7 +135,6 @@ export default function Home() {
       {/* Distribuição + Atividade */}
       <div className="flex flex-col md:flex-row md:space-x-8">
 
-        {/* Gráfico */}
         <div className="md:w-1/2 bg-gray-100 p-6 rounded-lg shadow">
           <div className="flex items-center gap-2 mb-4">
             <PieChartIcon className="text-green-600" />
@@ -142,7 +150,6 @@ export default function Home() {
           />
         </div>
 
-        {/* Atividade Recente */}
         <div className="md:w-1/2 bg-gray-100 p-6 rounded-lg shadow mt-8 md:mt-0">
           <div className="flex items-center gap-2">
             <HistoryIcon className="text-green-600" />
@@ -152,7 +159,9 @@ export default function Home() {
           <div className="flex flex-col space-y-4 mt-4">
             {eventos.slice(0, 5).map((e, idx) => (
               <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg shadow">
-                <span className="font-semibold capitalize">{e.classification}</span>
+                <span className="font-semibold capitalize">
+                  {traduzir[e.classification?.toLowerCase() as keyof typeof traduzir] ?? e.classification}
+                </span>
                 <span className="text-sm text-gray-600">{e.timestamp}</span>
               </div>
             ))}
