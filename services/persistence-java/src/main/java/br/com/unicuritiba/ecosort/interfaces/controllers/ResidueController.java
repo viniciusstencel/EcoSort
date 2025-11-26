@@ -48,7 +48,7 @@ public class ResidueController {
     public ResponseEntity<String> testBroadcastSimples() {
 
         ResidueDTO residue = new ResidueDTO(
-                "Simulated Test Residue",
+                "paper",
                 0.99f,
                 LocalDateTime.now()
         );
@@ -57,7 +57,7 @@ public class ResidueController {
 
         residueService.saveAndNotify(residue);
 
-        return ResponseEntity.ok("Simulated residue message sent.");
+        return ResponseEntity.ok("Simulated residue message sent (PAPER).");
     }
 
     @PostMapping("/test-classify/{classify}") // <-- Endpoint de residuo teste.
