@@ -1,0 +1,5 @@
+0 plastic
+1 organic
+2 metal
+3 paper
+4 undefined
