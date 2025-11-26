@@ -6,8 +6,8 @@
 #include <ESPmDNS.h>
 
 // ================= CONFIGURAÇÕES DE REDE ===================
-const char* ssid = "Felipe";
-const char* password = "1610242126";
+const char* ssid = "Wifi-Janete";
+const char* password = "Math3,14";
 
 #define ENABLE_CAMERA true
 
@@ -17,18 +17,18 @@ const char* password = "1610242126";
 // Servos
 Servo servoInferior;
 Servo servoSuperior;
-#define SERVO_PIN_INFERIOR 13
-#define SERVO_PIN_SUPERIOR 12
+#define SERVO_PIN_INFERIOR 2
+#define SERVO_PIN_SUPERIOR 13
 
 // Posições
 #define SERVO_INFERIOR_INICIAL 90
-#define SERVO_SUPERIOR_INICIAL 100
+#define SERVO_SUPERIOR_INICIAL 95
 #define SERVO_INFERIOR_PAPER 35
 #define SERVO_SUPERIOR_PAPER 120
-#define SERVO_INFERIOR_PLASTIC 140
-#define SERVO_SUPERIOR_PLASTIC 75
+#define SERVO_INFERIOR_PLASTIC 110
+#define SERVO_SUPERIOR_PLASTIC 20
 #define SERVO_INFERIOR_ORGANIC 35
-#define SERVO_SUPERIOR_ORGANIC 75
+#define SERVO_SUPERIOR_ORGANIC 50
 #define SERVO_INFERIOR_METAL 140
 #define SERVO_SUPERIOR_METAL 120
 
@@ -38,15 +38,42 @@ bool resetPending = false;
 
 AsyncWebServer server(80);
 
+// ====== CONTROLE DE MOVIMENTO SUAVE =======
+int currentInferior = SERVO_INFERIOR_INICIAL;
+int currentSuperior = SERVO_SUPERIOR_INICIAL;
+int targetInferior = SERVO_INFERIOR_INICIAL;
+int targetSuperior = SERVO_SUPERIOR_INICIAL;
+unsigned long lastStepTime = 0;
+#define STEP_INTERVAL 15
+
+void updateServoSmooth() {
+  if (millis() - lastStepTime < STEP_INTERVAL) return;
+  lastStepTime = millis();
+
+  bool moved = false;
+
+  if (currentInferior < targetInferior) { currentInferior++; moved = true; }
+  else if (currentInferior > targetInferior) { currentInferior--; moved = true; }
+
+  if (currentSuperior < targetSuperior) { currentSuperior++; moved = true; }
+  else if (currentSuperior > targetSuperior) { currentSuperior--; moved = true; }
+
+  if (moved) {
+    servoInferior.write(currentInferior);
+    servoSuperior.write(currentSuperior);
+  }
+}
+
 // ================= FUNÇÃO DE CLASSIFICAÇÃO ===================
 void handleClassification(String command) {
   Serial.print(">>> CLASSIFY REQUEST RECEIVED: ");
   Serial.println(command);
 
-  int targetInferior = SERVO_INFERIOR_INICIAL;
-  int targetSuperior = SERVO_SUPERIOR_INICIAL;
-
-  if (command == "paper") {
+  if (command == "default") {
+    targetInferior = SERVO_INFERIOR_INICIAL;
+    targetSuperior = SERVO_SUPERIOR_INICIAL;
+  }
+  else if (command == "paper") {
     targetInferior = SERVO_INFERIOR_PAPER;
     targetSuperior = SERVO_SUPERIOR_PAPER;
   } else if (command == "plastic") {
@@ -62,9 +89,6 @@ void handleClassification(String command) {
     Serial.println("Comando desconhecido.");
     return;
   }
-
-  servoInferior.write(targetInferior);
-  servoSuperior.write(targetSuperior);
 
   lastMoveTime = millis();
   resetPending = true;
@@ -212,12 +236,14 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  servoInferior.attach(SERVO_PIN_INFERIOR);
-  servoSuperior.attach(SERVO_PIN_SUPERIOR);
+  servoInferior.attach(SERVO_PIN_INFERIOR, 500, 2500);
+  servoSuperior.attach(SERVO_PIN_SUPERIOR, 600, 2400);
   servoInferior.write(SERVO_INFERIOR_INICIAL);
   servoSuperior.write(SERVO_SUPERIOR_INICIAL);
 
-  // Inicializar câmera
+  currentInferior = SERVO_INFERIOR_INICIAL;
+  currentSuperior = SERVO_SUPERIOR_INICIAL;
+
   if (ENABLE_CAMERA) {
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
@@ -247,7 +273,6 @@ void setup() {
     esp_camera_init(&config);
   }
 
-  // --- WiFi ---
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
@@ -258,14 +283,12 @@ void setup() {
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 
-  // --- mDNS ---
   if (MDNS.begin("ecosort")) {
       Serial.println("mDNS ativo: http://ecosort.local");
   } else {
       Serial.println("Erro ao iniciar mDNS");
   }
 
-  // --- Rotas ---
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *req){
     req->send(200, "text/html", htmlPage());
   });
@@ -283,9 +306,10 @@ void setup() {
 
 // ================= LOOP ===================
 void loop() {
+  updateServoSmooth();
+
   if (resetPending && (millis() - lastMoveTime > RESET_DELAY)) {
-    servoInferior.write(SERVO_INFERIOR_INICIAL);
-    servoSuperior.write(SERVO_SUPERIOR_INICIAL);
+    handleClassification("default");
     resetPending = false;
   }
 }
